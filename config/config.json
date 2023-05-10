@@ -1,0 +1,9 @@
+{
+  "baseUrl": "http://localhost:8080",
+  "jwt": {
+    "secretKey": "j5ED8g63Uhf6a3vs",
+    "options": {
+      "expiresIn": "1h"
+    }
+  }
+}

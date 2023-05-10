@@ -1,0 +1,228 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Messaging SaaS API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080"
+    }
+  ],
+  "tags": [
+    {
+      "name": "api",
+      "description": "Everything about api"
+    },
+    {
+      "name": "Messaging",
+      "description": "Operations about messaging" 
+    }
+  ],
+  "paths": {
+    "/api/login-socket/{userID}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "userID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The id of the user who wants to login."
+          }
+        ],
+        "tags": ["api"],
+        "summary": "Login Socket",
+        "description": "Login socket",
+        "operationId": "loginSocketApi",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/join-chat/{senderID}/{receiverID}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "senderID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The user's own id value who wants to join the chat."
+          },
+          {
+            "in": "path",
+            "name": "receiverID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The id value of the person to whom the message is sent."
+          }
+        ],
+        "tags": ["api"],
+        "summary": "Join Chat",
+        "description": "Join chat",
+        "operationId": "joinChatApi",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/fetch-messages/{conversationID}": {
+      "get": {
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversationID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The id value of the conversation you want the messages to be listed."
+          }
+        ],
+        "tags": ["api"],
+        "summary": "List Messages",
+        "description": "List messages",
+        "operationId": "listMessagesApi",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Unexpected database error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/save-message": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "conversationID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The conversation id the message was sent to."
+          },
+          {
+            "in": "body",
+            "name": "senderID",
+            "schema": {
+              "type": "string"
+            },
+            "description": "The id of the sender of the message."
+          },
+          {
+            "in": "body",
+            "name": "content",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Content of the message."
+          },
+          {
+            "in": "body",
+            "name": "messageType",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Type of message."
+          }
+        ],
+        "tags": ["api"],
+        "summary": "Send Message",
+        "description": "Send message",
+        "operationId": "sendMessageApi",
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        },
+        "500": {
+          "description": "Unexpected database error",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": {
+    "bearerAuth": []
+  }
+}

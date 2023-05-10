@@ -1,0 +1,261 @@
+            <!-- Start User chat -->
+            <div class="user-chat w-100 overflow-hidden" id="userChat">
+                <div class="d-lg-flex">
+
+                    <!-- start chat conversation section -->
+                    <div id="scbor" class="w-100 overflow-hidden position-relative">
+                        <div class="p-3 p-lg-4 border-bottom user-chat-topbar">
+                            <div class="row align-items-center">
+                                <div class="col-sm-4 col-8">
+                                    <div class="d-flex align-items-center">
+                                        <div class="d-block d-lg-none me-2 ms-0">
+                                            <a href="javascript: void(0);" class="user-chat-remove text-muted font-size-16 p-2"><i class="ri-arrow-left-s-line"></i></a>
+                                        </div>
+                                        <div class="me-3 ms-0">
+                                            <div class="avatar-xs">
+                                                <span class="avatar-title rounded-circle bg-soft-primary text-primary ">
+                                                :)
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-grow-1 overflow-hidden">
+                                            <h5 class="font-size-16 mb-0 text-truncate"><a href="#" class="text-reset user-profile-show">{{data.receiverID}}</a> <i class="ri-record-circle-fill font-size-10 text-success d-inline-block ms-1"></i></h5>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end chat user head -->
+    
+                        <!-- start chat conversation -->
+                        <div class="chat-conversation p-3 p-lg-4" data-simplebar="init">
+                            <button type="button" onclick="moreMessages()" class="btn btn-primary" style="margin-inline: 42%;height: 25px;width: 200px;padding: 0; padding: 0;background-color: rgb(239, 71, 111);border-color: rgb(239, 71, 111);">
+                            Daha fazla mesaj gör
+                            </button>
+                            <ul id="messageList" class="list-unstyled mb-0">
+                            </ul>
+                        </div>
+                        <!-- end chat conversation end -->
+    
+                        <!-- start chat input section -->
+                        <div class="chat-input-section p-3 p-lg-4 border-top mb-0" style="padding-top: 0!important;">
+                        <p id="isSeen" style="margin-left: 45%; margin-block: 10px;"></p>
+                          <div class="row g-0">
+                            <div class="col">
+                              <input id="messageInput" type="text" class="form-control form-control-lg bg-light border-light" placeholder="Enter Message...">
+                            </div>
+                            <div class="col-auto">
+                              <div class="chat-input-links ms-md-2 me-md-0">
+                                <ul class="list-inline mb-0">
+                                  <li class="list-inline-item">
+                                    <button id="submitButton" type="submit" class="btn btn-primary font-size-16 btn-lg chat-send waves-effect waves-light">
+                                      <i class="ri-send-plane-2-fill"></i>
+                                    </button>
+                                  </li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- end chat input section -->
+                    </div>
+                    <!-- end chat conversation section -->
+                </div>
+            </div>
+            <!-- End User chat -->
+
+{% block scripts %}
+
+  <script src="/socket.io/socket.io.js"></script>
+
+	<script>
+
+        var conversationID = null;
+        var messages = null;
+        var userID = null;
+        var limit = 20;
+        var token= null;
+        var seenData = null;
+        var socket = io({
+		        query: {
+              userID: "{{data.userID}}",
+            }
+        });
+        socket.on("connect", () => {
+            console.log( "connected" );
+        });
+
+        socket.emit('join the chat',{ receiverID: "{{data.receiverID}}"});
+
+        socket.on('join the chat', (data) => {
+            conversationID = data.conversationID;
+            messages = data.messageData.messages;
+            seenData=data.messageData.isSeen;
+            userID = data.userID;
+            token = data.token;
+            listMessages();
+        });
+
+        socket.on('is seen', (data) => {
+            if(data.isSeen == true){
+                seenData = true;
+                seenInfo();
+            }
+        });
+        
+        var messageInput = document.getElementById( "messageInput" ); 
+        var messageList = document.getElementById( "messageList" );
+        var isSeen = document.getElementById( "isSeen" );
+
+        document.getElementById( "submitButton" ).onclick =submitMessage;
+
+        function submitMessage() {
+            let item = document.createElement('li');
+            let att = document.createAttribute("class");
+            var localTime = new Date().toLocaleTimeString();
+            att.value = "right";
+            item.setAttributeNode(att);
+            item.innerHTML="";
+            item.innerHTML+=`
+                <li class="right">
+                  <div class="conversation-list">
+                    <div class="user-chat-content">
+                      <div class="ctext-wrap">
+                        <div class="ctext-wrap-content">
+                          <p class="mb-0">
+                            ${messageInput.value}
+                          </p>
+                          <p class="chat-time mb-0"><i class="ri-time-line align-middle"></i> <span class="align-middle">10:12</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+            `;
+            messageList.appendChild(item);
+            sendSocketMessage(messageInput.value);
+            messageInput.value="";
+        }
+
+        function sendSocketMessage(message) {
+            socket.emit('send message', { message: message, conversationID: conversationID }, (data) => {
+                if(data.isSeen == false){
+                    seenData = false;
+                    seenInfo();
+                }
+            });
+        }
+
+        socket.on('receive message', (data) => {
+            seenData = data.isSeen;
+            let item = document.createElement('li');
+            let att = document.createAttribute("class");
+            item.innerHTML="";
+            item.innerHTML+=`
+              <li>
+                <div class="conversation-list">
+                  <div class="user-chat-content">
+                    <div class="ctext-wrap">
+                      <div class="ctext-wrap-content">
+                        <p class="mb-0">
+                            ${data.message}
+                        </p>
+                        <p class="chat-time mb-0"><i class="ri-time-line align-middle"></i> <span class="align-middle">10:12</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </li> ` ;
+            messageList.appendChild(item);
+        });
+
+        function listMessages() {
+            messageList.innerHTML="";
+            messages.forEach(element => {
+                if (element.senderID == userID) {
+                    let item = document.createElement('li');
+                    let att = document.createAttribute("class");
+                    att.value = "right";
+                    item.setAttributeNode(att);
+                    item.innerHTML="";
+                    item.innerHTML+=`
+                        <li class="right">
+                          <div class="conversation-list">
+                            <div class="user-chat-content">
+                              <div class="ctext-wrap">
+                                <div class="ctext-wrap-content">
+                                  <p class="mb-0">
+                                    ${element.content}
+                                  </p>
+                                  <p class="chat-time mb-0"><i class="ri-time-line align-middle"></i> <span class="align-middle">10:12</span>
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                    `;
+                    messageList.appendChild(item);
+                } else {
+                    let item = document.createElement('li');
+                    let att = document.createAttribute("class");
+                    item.innerHTML="";
+                    item.innerHTML+=`
+                      <li>
+                        <div class="conversation-list">
+                          <div class="user-chat-content">
+                            <div class="ctext-wrap">
+                              <div class="ctext-wrap-content">
+                                <p class="mb-0">
+                                    ${element.content}
+                                </p>
+                                <p class="chat-time mb-0"><i class="ri-time-line align-middle"></i> <span class="align-middle">10:12</span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </li> ` ;
+                    messageList.appendChild(item);                    
+                }             
+            });
+            seenInfo();
+        }
+        
+        function fetchMessages(limit) {
+            $.ajax({
+            method: "GET",
+            headers: {
+                authorization: `Bearer ${token}`
+            },
+            url: `/api/fetch-messages/${conversationID}?limit=${limit}`,
+            dataType: 'json',
+            }).done((res) => {
+                messages = res.data.messages;
+                seenData = res.data.isSeen;
+                listMessages();
+            }).fail((err)=>{
+                console.log(err);
+            });
+        }
+
+        function moreMessages() {
+            fetchMessages(limit);
+            limit+=10;
+        }
+
+        function seenInfo() {
+          if(seenData==true){
+            isSeen.innerHTML="";
+            isSeen.innerHTML+=`Okundu`;
+          }else{
+            isSeen.innerHTML="";
+            isSeen.innerHTML+=`Okunmadı`;
+          }
+        }
+
+  </script>
+
+{% endblock %}
