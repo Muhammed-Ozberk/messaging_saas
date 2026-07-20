@@ -1,5 +1,7 @@
 # Messaging SaaS
 
+[![CI](https://github.com/Muhammed-Ozberk/messaging_saas/actions/workflows/ci.yml/badge.svg)](https://github.com/Muhammed-Ozberk/messaging_saas/actions/workflows/ci.yml)
+
 Web ve mobil istemciler için Express, Socket.IO, Sequelize ve MySQL tabanlı örnek mesajlaşma servisi.
 
 Bu dosya BOM içermeyen UTF-8 olarak saklanır.
@@ -109,3 +111,7 @@ npm run stress
 docker compose config
 docker compose up --build
 ```
+
+## Lisans
+
+Bu proje [MIT Lisansı](LICENSE) ile lisanslanmıştır.
