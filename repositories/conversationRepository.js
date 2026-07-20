@@ -22,12 +22,14 @@ module.exports = {
         } else {
             const decoded = tokenUtil.validate(token);
             if (!decoded) return { status: false, message: "Invalid token." };
+            if (decoded.sub !== String(senderID)) return { status: false, message: "Forbidden." };
             try {
 
                 const userOne = await baseRepository.findOne(Users, { userID: senderID });
                 if (!userOne) return { status: false, message: "Sender not found." };
 
-                const userTwo = await baseRepository.upsert(Users, { userID: receiverID });
+                const userTwo = await baseRepository.findOne(Users, { userID: receiverID });
+                if (!userTwo) return { status: false, message: "Receiver not found." };
 
                 const conversation = await baseRepository.findOneOr(Conversations, [
                     {

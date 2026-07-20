@@ -1,6 +1,6 @@
 const baseRepository = require('./base/baseRepository');
-const jwt = require('jsonwebtoken');
-const config = require('../config/config.json');
+const passwordUtil = require('../util/password');
+const tokenUtil = require('../util/token');
 
 
 /** DB Models */
@@ -10,27 +10,34 @@ const Users = allModels.Users;
 
 module.exports = {
 
-    loginSocket: async function (userID) {
-
+    authenticate: async function (userID, password) {
         try {
-
-            await baseRepository.upsert(Users, { userID: userID });
-
-            token = jwt.sign({
-                userID: userID,
-            }, config.jwt.secretKey, config.jwt.options);
-
-            const data = {
-                userID: userID,
-                token: token,
-            };
-
-            return { status: true, data: data };
+            const user = await baseRepository.findOne(Users, { userID: String(userID) });
+            if (!user || !await passwordUtil.verify(password, user.passwordHash)) {
+                return { status: false, message: 'Invalid credentials.' };
+            }
+            return { status: true, data: { userID: user.userID, token: tokenUtil.issue(user.userID) } };
         } catch (error) {
             console.log(error);
             return { status: false, message: "System error." };
         }
-
     },
 
-}
+    create: async function (userID, password) {
+        const existing = await baseRepository.findOne(Users, { userID: String(userID) });
+        if (existing) {
+            if (!existing.passwordHash) {
+                existing.passwordHash = await passwordUtil.hash(password);
+                await existing.save();
+            }
+            return existing;
+        }
+        return baseRepository.create(Users, {
+            userID: String(userID),
+            passwordHash: await passwordUtil.hash(password),
+        });
+    },
+
+    findByUserID: (userID) => baseRepository.findOne(Users, { userID: String(userID) }),
+
+};

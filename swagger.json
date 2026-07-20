@@ -20,46 +20,6 @@
     }
   ],
   "paths": {
-    "/api/login-socket/{userID}": {
-      "get": {
-        "parameters": [
-          {
-            "in": "path",
-            "name": "userID",
-            "schema": {
-              "type": "string"
-            },
-            "description": "The id of the user who wants to login."
-          }
-        ],
-        "tags": ["api"],
-        "summary": "Login Socket",
-        "description": "Login socket",
-        "operationId": "loginSocketApi",
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Unexpected database error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/join-chat/{senderID}/{receiverID}": {
       "get": {
         "parameters": [

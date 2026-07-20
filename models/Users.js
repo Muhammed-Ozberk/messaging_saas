@@ -13,10 +13,13 @@ module.exports = (sequelize, DataTypes) => {
                 unique: true,
             },
             group: DataTypes.STRING,
+            passwordHash: {
+                type: DataTypes.STRING(60),
+                allowNull: false,
+            },
             createdAt: DataTypes.DATE,
             updatedAt: DataTypes.DATE
         }
     );
     return Users;
 };
-

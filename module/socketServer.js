@@ -2,10 +2,15 @@ var app = require('../app');
 const http = require('http').Server(app);
 const socketController = require('../controllers/socketController');
 
+const allowedOrigins = (process.env.SOCKET_ALLOWED_ORIGINS || 'http://localhost:8080')
+    .split(',')
+    .map((origin) => origin.trim());
+
 const io = require('socket.io')(http, {
     cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
+        origin: allowedOrigins,
+        methods: ["GET", "POST"],
+        credentials: true,
     }
 });
 
@@ -21,4 +26,3 @@ module.exports = {
         }
     },
 }
-

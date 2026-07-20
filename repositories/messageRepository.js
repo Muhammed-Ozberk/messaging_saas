@@ -32,7 +32,6 @@ module.exports = {
                         ['createdAt', 'DESC']
                     ],
                 );
-                let seenUser = null;
                 let isSeen = false;
 
                 const conversation = await baseRepository.findOne(Conversations, {
@@ -40,20 +39,18 @@ module.exports = {
                 });
 
                 if (conversation) {
-                    if (conversation.seen) {
-                        if (conversation.seen == "false") {
-                            seenUser = decoded.userID;
-                        } else if (conversation.seen.includes(decoded.userID)) {
-                            seenUser = conversation.seen;
-                        } else {
-                            seenUser = conversation.seen + ":" + decoded.userID;
-                        }
+                    if (![String(conversation.userOne), String(conversation.userTwo)].includes(decoded.sub)) {
+                        return { status: false, message: "Forbidden." };
                     }
-                    if (seenUser.includes(decoded.userID) && seenUser.length > 33) {
-                        isSeen = true;
-                    }
+                    const seenUsers = conversation.seen && conversation.seen !== 'false'
+                        ? conversation.seen.split(':').filter(Boolean)
+                        : [];
+                    if (!seenUsers.includes(decoded.sub)) seenUsers.push(decoded.sub);
+                    const seenUser = seenUsers.join(':');
+                    isSeen = [String(conversation.userOne), String(conversation.userTwo)]
+                        .every((userID) => seenUsers.includes(userID));
 
-                    if (seenUser != conversation.seen) {
+                    if (seenUser !== conversation.seen) {
                         await baseRepository.update(Conversations, {
                             seen: seenUser
                         }, {
@@ -89,7 +86,12 @@ module.exports = {
         } else {
             const decoded = tokenUtil.validate(token);
             if (!decoded) return { status: false, message: "Invalid token." };
+            if (decoded.sub !== String(senderID)) return { status: false, message: "Forbidden." };
             try {
+                const conversation = await baseRepository.findOne(Conversations, { conversationID });
+                if (!conversation || ![String(conversation.userOne), String(conversation.userTwo)].includes(decoded.sub)) {
+                    return { status: false, message: "Forbidden." };
+                }
                 const savedMessage = await baseRepository.create(Messages, {
                     conversationID: conversationID,
                     senderID: senderID,

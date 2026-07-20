@@ -13,6 +13,7 @@ var socketServer = require("../module/socketServer");
 
 
 const sequelize = require('../models').sequelize;
+const userRepository = require('../repositories/userRepository');
 
 var serverStarted = false;
 /**
@@ -47,8 +48,13 @@ function startServer() {
 //database connection
 sequelize.authenticate().then(() => {
   console.log('DB Connection has been established successfully.');
-  sequelize.migrate().then(migrations => {
+  sequelize.migrate().then(async migrations => {
     console.log(`Migrate is done ${migrations}`);
+    if (process.env.DEMO_USER_IDS && process.env.DEMO_USER_PASSWORD) {
+      const demoUserIDs = process.env.DEMO_USER_IDS.split(',').map(id => id.trim()).filter(Boolean);
+      for (const userID of demoUserIDs) await userRepository.create(userID, process.env.DEMO_USER_PASSWORD);
+      console.log(`Demo users ${demoUserIDs.join(', ')} are ready.`);
+    }
     startServer();
   }).catch(err => {
     console.log("Can not migrate db " + err);
@@ -119,6 +125,4 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
-
-
 

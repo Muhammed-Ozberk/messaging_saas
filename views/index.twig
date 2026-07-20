@@ -183,23 +183,6 @@
             }).fail((err)=>{
                 console.log(err.status);
             }); #}
-        {# var conversationID = null;
-        var socket = io({
-		        query: {
-              userID: 2,
-              userType:"student"
-            }
-        });
-        socket.on("connect", () => {
-            console.log( "connected" )
-        });
-
-        socket.emit('join the chat',{ receiverID: 3, receiverType: "teacher" });
-        socket.on('join the chat', (data) => {
-            console.log(data);
-            conversationID = data;
-        }); #}
-
         var messageInput = document.getElementById( "messageInput" ); 
         var messageList = document.getElementById( "messageList" );
 
@@ -249,7 +232,6 @@
   </script>
 
 {% endblock %}
-
 
 
 

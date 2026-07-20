@@ -74,13 +74,9 @@
         var messages = null;
         var userID = null;
         var limit = 20;
-        var token= null;
         var seenData = null;
-        var socket = io({
-		        query: {
-              userID: "{{data.userID}}",
-            }
-        });
+        // The HttpOnly auth_token cookie is sent automatically during the same-origin handshake.
+        var socket = io();
         socket.on("connect", () => {
             console.log( "connected" );
         });
@@ -92,7 +88,6 @@
             messages = data.messageData.messages;
             seenData=data.messageData.isSeen;
             userID = data.userID;
-            token = data.token;
             listMessages();
         });
 
@@ -227,9 +222,6 @@
         function fetchMessages(limit) {
             $.ajax({
             method: "GET",
-            headers: {
-                authorization: `Bearer ${token}`
-            },
             url: `/api/fetch-messages/${conversationID}?limit=${limit}`,
             dataType: 'json',
             }).done((res) => {

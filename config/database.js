@@ -1,23 +1,29 @@
 module.exports = {
     "development": {
-        "username": "root",
-        "password": "kahramanmaras46",
-        "database": "message_sas_db",
-        "host": "127.0.0.1",
+        "username": process.env.DB_USER || "messaging",
+        "password": process.env.DB_PASSWORD,
+        "database": process.env.DB_NAME || "message_sas_db",
+        "host": process.env.DB_HOST || "127.0.0.1",
+        "port": Number(process.env.DB_PORT || 3306),
         "dialect": "mysql",
+        "logging": false,
     },
     "test": {
-        "username": "root",
-        "password": null,
-        "database": "database_test",
-        "host": "127.0.0.1",
-        "dialect": "mysql"
+        "username": process.env.DB_USER || "messaging",
+        "password": process.env.DB_PASSWORD,
+        "database": process.env.DB_NAME || "database_test",
+        "host": process.env.DB_HOST || "127.0.0.1",
+        "port": Number(process.env.DB_PORT || 3306),
+        "dialect": "mysql",
+        "logging": false,
     },
     "production": {
-        "username": "root",
-        "password": null,
-        "database": "database_production",
-        "host": "127.0.0.1",
-        "dialect": "mysql"
+        "username": process.env.DB_USER,
+        "password": process.env.DB_PASSWORD,
+        "database": process.env.DB_NAME,
+        "host": process.env.DB_HOST,
+        "port": Number(process.env.DB_PORT || 3306),
+        "dialect": "mysql",
+        "logging": false,
     }
 }
